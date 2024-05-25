@@ -1,6 +1,8 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QLabel
-from PyQt6.QtCore import QTimer, QTime
+from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout
+from PyQt6.QtCore import QTimer, QTime, QDateTime, Qt
+from PyQt6.QtGui import QColor
+
 
 class ClockApp(QWidget):
     def __init__(self):
