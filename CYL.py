@@ -63,7 +63,7 @@ class ClockApp(QWidget):
                 self.update_time()
             else:
                 self.birthday = None
-                self.elapsed_time_label.setText("無効な日付が入力されました。")
+                self.time_until_ninety_label.setText("無効な日付が入力されました。")
 
     def update_time(self):
         if self.birthday and self.birthday.isValid():
