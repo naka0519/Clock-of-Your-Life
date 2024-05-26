@@ -43,7 +43,7 @@ class ClockApp(QWidget):
         self.setWindowTitle('あなたの残り時間')
         self.setFixedSize(500, 250)  # ウィンドウサイズを固定
         self.setGeometry(500, 500, 500, 150)  # ウィンドウの位置とサイズを設定
-        #self.setWindowIcon(QIcon('clock_icon.png'))  # アイコンファイルを指定（ファイルパスは環境に合わせて調整）
+        #self.setWindowIcon(QIcon('./figures/clock_icon.png'))  # アイコンファイルを指定（ファイルパスは環境に合わせて調整）
 
         layout = QVBoxLayout()
 
