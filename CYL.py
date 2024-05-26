@@ -93,8 +93,8 @@ class ClockApp(QWidget):
             years_left, months_left, days_left = self.calculate_date_difference(now.date(), target_birthday.date())
             total_months_left = years_left * 12 + months_left
 
-            self.time_until_ninety_label.setText(f"あなたの残り時間: {years_left}年 {months_left}ヶ月 {days_left}日 {hours_left}時間 {minutes_left}分 {seconds_left}秒")
-            self.total_months_label.setText(f"あなたの残り月数: {total_months_left} ヶ月") 
+            self.time_until_ninety_label.setText(f"残り時間: {years_left}年 {months_left}ヶ月 {days_left}日 {hours_left}時間 {minutes_left}分 {seconds_left}秒")
+            self.total_months_label.setText(f"残り月数: {total_months_left} ヶ月") 
 
     def calculate_date_difference(self, start_date, end_date):
             years = end_date.year() - start_date.year()
