@@ -2,6 +2,7 @@
 
 ### Usage
 - /dist/CYL.exe ： アプリケーション実行ファイル
+- CYL.py ： 仮想環境上で実行 ..\.CYLvenv\Scripts\activate
 
 ### Purpose
 - 入力年齢までの残り時間を可視化します
