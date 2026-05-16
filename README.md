@@ -36,7 +36,7 @@ uv run pytest -v
 ### .exe ビルド
 
 ```bash
-uv run pyinstaller CYL.spec
+uv run pyinstaller CYL.spec --clean
 # → dist/CYL.exe
 ```
 

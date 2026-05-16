@@ -3,6 +3,7 @@ from datetime import date
 
 from PyQt6.QtCore import QDate
 from PyQt6.QtWidgets import (
+    QComboBox,
     QDateEdit,
     QDialog,
     QFormLayout,
@@ -12,6 +13,7 @@ from PyQt6.QtWidgets import (
 )
 
 from .schema import Config
+from .themes import THEME_LABELS
 
 logger = logging.getLogger(__name__)
 
@@ -24,8 +26,8 @@ class BirthdayInputDialog(QDialog):
         self._init_ui()
 
     def _init_ui(self) -> None:
-        self.setWindowTitle("生年月日入力")
-        self.setFixedSize(500, 180)
+        self.setWindowTitle("設定")
+        self.setFixedSize(500, 210)
         layout = QFormLayout(self)
 
         self.birthday_input = QDateEdit(self)
@@ -43,6 +45,15 @@ class BirthdayInputDialog(QDialog):
         if self._config:
             self.target_age_input.setText(str(self._config.target_age))
         layout.addRow("目標年齢:", self.target_age_input)
+
+        self.theme_input = QComboBox(self)
+        for key, label in THEME_LABELS.items():
+            self.theme_input.addItem(label, key)
+        current_theme = self._config.theme if self._config else "default"
+        idx = self.theme_input.findData(current_theme)
+        if idx >= 0:
+            self.theme_input.setCurrentIndex(idx)
+        layout.addRow("テーマ:", self.theme_input)
 
         submit = QPushButton("確認", self)
         submit.clicked.connect(self._on_submit)
@@ -76,7 +87,8 @@ class BirthdayInputDialog(QDialog):
             )
             return
 
-        self._result_config = Config(birthday=birthday, target_age=target_age)
+        theme = self.theme_input.currentData()
+        self._result_config = Config(birthday=birthday, target_age=target_age, theme=theme)
         self.accept()
 
     def get_config(self) -> Config:

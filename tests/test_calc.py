@@ -1,8 +1,17 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import pytest
 
-from cyl.calc import DateDiff, RemainingTime, date_difference, remaining_time, target_date
+from cyl.calc import (
+    DateDiff,
+    RemainingTime,
+    date_difference,
+    lifetime_progress,
+    remaining_time,
+    target_date,
+    today_progress,
+    week_progress,
+)
 
 
 class TestDateDifference:
@@ -56,7 +65,7 @@ class TestRemainingTime:
         # Exactly at target date midnight → all zeros
         now = datetime(2080, 5, 19, 0, 0, 0)
         rt = remaining_time(date(1990, 5, 19), 90, now)
-        assert rt == RemainingTime(0, 0, 0, 0, 0, 0, 0)
+        assert rt == RemainingTime(0, 0, 0, 0, 0, 0, 0, 0)
 
     def test_round_years(self):
         now = datetime(2020, 1, 1, 0, 0, 0)
@@ -89,3 +98,64 @@ class TestRemainingTime:
         now = datetime(2020, 1, 1, 0, 0, 0)
         rt = remaining_time(date(1990, 1, 1), 90, now)
         assert rt.total_months == 60 * 12
+
+    def test_total_days(self):
+        now = datetime(2020, 1, 1, 0, 0, 0)
+        rt = remaining_time(date(1990, 1, 1), 90, now)
+        assert rt.total_days == (date(2080, 1, 1) - date(2020, 1, 1)).days
+
+    def test_total_days_last_day(self):
+        # now = 2019-12-31, target = 2020-01-01 → 1 day remaining
+        now = datetime(2019, 12, 31, 12, 30, 45)
+        rt = remaining_time(date(1990, 1, 1), 30, now)
+        assert rt.total_days == 1
+
+
+class TestTodayProgress:
+    def test_midnight(self):
+        assert today_progress(datetime(2024, 1, 1, 0, 0, 0)) == pytest.approx(0.0)
+
+    def test_noon(self):
+        assert today_progress(datetime(2024, 1, 1, 12, 0, 0)) == pytest.approx(0.5)
+
+    def test_end_of_day(self):
+        now = datetime(2024, 1, 1, 23, 59, 59)
+        assert today_progress(now) == pytest.approx((23 * 3600 + 59 * 60 + 59) / 86400)
+
+
+class TestWeekProgress:
+    def test_monday_midnight(self):
+        # 2024-01-01 is a Monday
+        assert week_progress(datetime(2024, 1, 1, 0, 0, 0)) == pytest.approx(0.0)
+
+    def test_thursday_noon(self):
+        # Thursday = weekday 3; elapsed = 3*86400 + 12*3600 = 302400
+        now = datetime(2024, 1, 4, 12, 0, 0)
+        assert week_progress(now) == pytest.approx(302400 / (7 * 86400))
+
+    def test_sunday_end(self):
+        now = datetime(2024, 1, 7, 23, 59, 59)
+        assert week_progress(now) == pytest.approx(
+            (6 * 86400 + 23 * 3600 + 59 * 60 + 59) / (7 * 86400)
+        )
+
+
+class TestLifetimeProgress:
+    def test_at_birthday(self):
+        assert lifetime_progress(date(1990, 1, 1), 90, date(1990, 1, 1)) == pytest.approx(0.0)
+
+    def test_at_target(self):
+        assert lifetime_progress(date(1990, 1, 1), 90, date(2080, 1, 1)) == pytest.approx(1.0)
+
+    def test_halfway(self):
+        birthday = date(1990, 1, 1)
+        td = target_date(birthday, 90)
+        total_days = (td - birthday).days
+        halfway = birthday + timedelta(days=total_days // 2)
+        assert lifetime_progress(birthday, 90, halfway) == pytest.approx(0.5, abs=1e-4)
+
+    def test_clamps_below_zero(self):
+        assert lifetime_progress(date(1990, 1, 1), 90, date(1989, 12, 31)) == pytest.approx(0.0)
+
+    def test_clamps_above_one(self):
+        assert lifetime_progress(date(1990, 1, 1), 90, date(2081, 1, 1)) == pytest.approx(1.0)

@@ -17,9 +17,14 @@ class TimeLabels(QWidget):
         self._months_label.setStyleSheet("font-size: 20px;")
         layout.addWidget(self._months_label)
 
+        self._days_label = QLabel("", self)
+        self._days_label.setStyleSheet("font-size: 20px;")
+        layout.addWidget(self._days_label)
+
     def update_display(self, rt: RemainingTime) -> None:
         self._time_label.setText(
             f"残り時間: {rt.years}年 {rt.months}ヶ月 {rt.days}日 "
             f"{rt.hours}時間 {rt.minutes}分 {rt.seconds}秒"
         )
         self._months_label.setText(f"残り月数: {rt.total_months} ヶ月")
+        self._days_label.setText(f"残り日数: {rt.total_days} 日")

@@ -17,6 +17,7 @@ class RemainingTime(NamedTuple):
     minutes: int
     seconds: int
     total_months: int
+    total_days: int
 
 
 def date_difference(start: date, end: date) -> DateDiff:
@@ -62,8 +63,9 @@ def remaining_time(birthday: date, target_age: int, now: datetime | None = None)
 
     diff = date_difference(now.date(), td)
     total_months = diff.years * 12 + diff.months
+    total_days = max(0, (td - now.date()).days)
 
-    return RemainingTime(diff.years, diff.months, diff.days, hours, minutes, seconds, total_months)
+    return RemainingTime(diff.years, diff.months, diff.days, hours, minutes, seconds, total_months, total_days)
 
 
 def weeks_elapsed(birthday: date, today: date | None = None) -> int:
@@ -71,3 +73,29 @@ def weeks_elapsed(birthday: date, today: date | None = None) -> int:
     if today is None:
         today = date.today()
     return max(0, (today - birthday).days // 7)
+
+
+def today_progress(now: datetime | None = None) -> float:
+    """Fraction of today elapsed: 0.0 at midnight, approaches 1.0 at end of day."""
+    if now is None:
+        now = datetime.now()
+    return (now.hour * 3600 + now.minute * 60 + now.second) / 86400
+
+
+def week_progress(now: datetime | None = None) -> float:
+    """Fraction of Mon-Sun week elapsed: 0.0 at Monday 00:00."""
+    if now is None:
+        now = datetime.now()
+    elapsed = now.weekday() * 86400 + now.hour * 3600 + now.minute * 60 + now.second
+    return elapsed / (7 * 86400)
+
+
+def lifetime_progress(birthday: date, target_age: int, today: date | None = None) -> float:
+    """Fraction of life elapsed from birthday to target_date, clamped to [0, 1]."""
+    if today is None:
+        today = date.today()
+    td = target_date(birthday, target_age)
+    total_days = (td - birthday).days
+    if total_days <= 0:
+        return 1.0
+    return max(0.0, min(1.0, (today - birthday).days / total_days))
